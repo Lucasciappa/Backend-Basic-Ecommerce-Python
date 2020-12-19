@@ -400,6 +400,7 @@ def ejecutarOpcion1(opcion,user,bank):
 carrito_p=[]
 carrito_n=[]
 carrito_total=[]
+factura=[]
 def listar_cat(user):       
     sql="SELECT * FROM categorias"
     dba.get_cursor().execute(sql)
@@ -437,9 +438,12 @@ def listar_pro(cat,user):
         result2=dba.get_cursor().fetchone()
         carrito_n.append(result2[0])
         carrito_p.append(result2[1])
-        carrito_total.append(result2)
+        carrito_total.append(result2[1])
+        carrito_total.append(result2[0])
+        factura.append(result2)
         print(carrito_n)
         print(carrito_p)
+        print(carrito_total)
         print(f"\nEl producto {result2[0]}, de ${result2[1]} fue agregado a tu carrito\n")
         print(f"Llevas gastado ${sum(carrito_p)}\n")
     elif pepe == 100:
@@ -461,18 +465,22 @@ def finalizar(user,bank):
             print(f"\n{user.get_nombre()}, finalizaste tu compra. Muchas gracias por confiar en nosotros!.")
             print("\nTU FACTURA: ")
             print("===============================================================================")
-            for i in carrito_total:
+            for i in factura:
                 datos="|Producto: {:40} ===>   |Precio: ${:7} "
                 print(datos.format(i[0],i[1]))
-                comp1=Compra(0,user,i[0],i[1])
-                if float == type(float):
-                    comp1.set_precio_final(carrito_total[i])
-                    comp1.save()
-                    print("Judio")
                 print("===============================================================================")
+            comp1=Compra(0,user,carrito_p[1],carrito_n[1])
+            for x, y in zip(carrito_p,carrito_n):
+                comp1.set_precio_final(x)
+                comp1.set_nombre(y)
+                comp1.save()
+                """if i == type(float) or i == type(int):
+                    print("Judio")
+                    comp1=Compra(0,user,carrito_total[i],carrito_total[i+1])
+                    comp1.save()"""
             print(f"|TOTAL:                                             ===>   |Precio: $ {sum(carrito_p)} ")    
             print("###############################################################################")
-            print(f"\n{user.get_nombre()}, Te quedaron ${bank.get_balance()} en tu billetera.\nQUE LO DISFRUTES, VUELVA PRONTO!!")
+            print(f"\n{user.get_nombre()}, Te quedaron ${bank.get_balance()} en tu billetera.\nQUE LO DISFRUTES, VUELVA PRONTO!!\n\n\n\n")
             Menu()
         elif ("no") == ok.lower():
             print(f"\n{user.get_nombre()} No aceptaste finalizar la compra, seras redirigido al menu.\n")
